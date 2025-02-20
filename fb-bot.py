@@ -67,7 +67,15 @@ class TokenGetter:
             return None
 
     def get_fb_dtsg(self, cookies: dict, proxy=None) -> str:
-        proxies = {'http': proxy, 'https': proxy} if proxy else None
+        # proxies = {'http': proxy, 'https': proxy} if proxy else None
+        if proxy:
+            proxies = {
+                'http': f'http://{proxy}',
+                'https': f'http://{proxy}'
+            }
+        else:
+            proxies = None  
+
         if not cookies:
             print("Error: Cookies dictionary is None")
             return None
@@ -117,7 +125,7 @@ class TokenGetter:
             proxy = self.get_proxy()
             proxies = {'http': proxy, 'https': proxy} if proxy else None
             
-            cookies = self.change_cookies_fb(cookie_re, proxy)
+            cookies = self.change_cookies_fb(cookie_re)
             if not cookies:
                 print("Error: Failed to parse cookies")
                 return None, None
@@ -201,8 +209,8 @@ def process_cookie(message):
     proxy_mode = "sequential"
     num_threads = 1
     if use_proxy:
-            if not os.path.exists('proxies.txt'):
-                print("Error: proxies.txt file not found!")
+        if not os.path.exists('proxies.txt'):
+            print("Error: proxies.txt file not found!")
 				# print("Error: proxy.txt file not found!")
 				# print("Proxy format in proxy.txt:")
 				# print("Format 1: ip:port")
@@ -210,10 +218,10 @@ def process_cookie(message):
 				# print("Example:")
 				# print("1.1.1.1:8080")
 				# print("2.2.2.2:8080:user:pass")
-                return
+            return
                 
-            proxy_mode = input("Proxy mode (random/sequential): ").lower()
-            if proxy_mode not in ['random', 'sequential']:
+        proxy_mode = input("Proxy mode (random/sequential): ").lower()
+        if proxy_mode not in ['random', 'sequential']:
                 proxy_mode = 'sequential'
     token_getter = TokenGetter(num_threads=num_threads,use_proxy=use_proxy, proxy_mode=proxy_mode)
     bot.reply_to(message, "Processing your token... Please wait.")
