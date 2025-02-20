@@ -29,8 +29,27 @@ def start_command(message):
         bot.reply_to(message, "❌ You are not approved yet. Request approval using /my_key and wait for an admin.")
 
 class TokenGetter:
-    def __init__(self, num_threads=5):
+    def __init__(self, num_threads=5, use_proxy=False, proxy_mode="random"):
         self.num_threads = num_threads
+        self.use_proxy = use_proxy
+        self.proxy_mode = proxy_mode
+        self.proxy_list = []
+        self.current_proxy_index = 0
+        
+        if use_proxy and os.path.exists('proxies.txt'):
+            with open('proxy.txt', 'r') as f:
+                self.proxy_list = [line.strip() for line in f if line.strip()]
+    
+    def get_proxy(self):
+        if not self.use_proxy or not self.proxy_list:
+            return None
+            
+        if self.proxy_mode == "random":
+            return random.choice(self.proxy_list)
+        else:
+            proxy = self.proxy_list[self.current_proxy_index]
+            self.current_proxy_index = (self.current_proxy_index + 1) % len(self.proxy_list)
+            return proxy
 
     def change_cookies_fb(self, cookies: str):
         result = {}
@@ -47,7 +66,8 @@ class TokenGetter:
             print(f"Error parsing cookies: {str(e)}")
             return None
 
-    def get_fb_dtsg(self, cookies: dict) -> str:
+    def get_fb_dtsg(self, cookies: dict, proxy=None) -> str:
+        proxies = {'http': proxy, 'https': proxy} if proxy else None
         if not cookies:
             print("Error: Cookies dictionary is None")
             return None
@@ -82,6 +102,7 @@ class TokenGetter:
                 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
                 'viewport-width': '1038',
             },
+            proxies=proxies
         ).text
         
         try:
@@ -93,7 +114,10 @@ class TokenGetter:
 
     def run(self, cookie_re, app_id, token_type):
         try:
-            cookies = self.change_cookies_fb(cookie_re)
+            proxy = self.get_proxy()
+            proxies = {'http': proxy, 'https': proxy} if proxy else None
+            
+            cookies = self.change_cookies_fb(cookie_re, proxy)
             if not cookies:
                 print("Error: Failed to parse cookies")
                 return None, None
@@ -144,6 +168,7 @@ class TokenGetter:
                 cookies=cookies,
                 headers=headers,
                 data=data,
+                proxies=proxies
             )
 
             if response.status_code != 200:
@@ -172,7 +197,25 @@ def get_token(message):
 
 def process_cookie(message):
     user_cookie = message.text
-    token_getter = TokenGetter()
+    use_proxy = False
+    proxy_mode = "sequential"
+    num_threads = 1
+    if use_proxy:
+            if not os.path.exists('proxy.txt'):
+                print("Error: proxy.txt file not found!")
+				# print("Error: proxy.txt file not found!")
+				# print("Proxy format in proxy.txt:")
+				# print("Format 1: ip:port")
+				# print("Format 2: ip:port:username:password")
+				# print("Example:")
+				# print("1.1.1.1:8080")
+				# print("2.2.2.2:8080:user:pass")
+                return
+                
+            proxy_mode = input("Proxy mode (random/sequential): ").lower()
+            if proxy_mode not in ['random', 'sequential']:
+                proxy_mode = 'sequential'
+    token_getter = TokenGetter(num_threads=num_threads,use_proxy=use_proxy, proxy_mode=proxy_mode)
     bot.reply_to(message, "Processing your token... Please wait.")
     
     try:
