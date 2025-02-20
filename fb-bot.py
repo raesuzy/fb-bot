@@ -37,7 +37,7 @@ class TokenGetter:
         self.current_proxy_index = 0
         
         if use_proxy and os.path.exists('proxies.txt'):
-            with open('proxy.txt', 'r') as f:
+            with open('proxies.txt', 'r') as f:
                 self.proxy_list = [line.strip() for line in f if line.strip()]
     
     def get_proxy(self):
@@ -201,8 +201,8 @@ def process_cookie(message):
     proxy_mode = "sequential"
     num_threads = 1
     if use_proxy:
-            if not os.path.exists('proxy.txt'):
-                print("Error: proxy.txt file not found!")
+            if not os.path.exists('proxies.txt'):
+                print("Error: proxies.txt file not found!")
 				# print("Error: proxy.txt file not found!")
 				# print("Proxy format in proxy.txt:")
 				# print("Format 1: ip:port")
