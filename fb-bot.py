@@ -226,10 +226,6 @@ def process_cookie(message):
     token_getter = TokenGetter(num_threads=num_threads,use_proxy=use_proxy, proxy_mode=proxy_mode)
     bot.reply_to(message, "Processing your token... Please wait.")
     
-    proxy = token_getter.get_proxy()  # Get the actual proxy
-    proxy_status = proxy if proxy else "None"
-    bot.reply_to(message, f"🔍 Proxy in Use: `{proxy_status}`")
-    
     try:
         token_type, access_token = token_getter.run(user_cookie, "350685531728", "EAAAAU")
         
